@@ -1,0 +1,77 @@
+---
+title: "anonymize-data"
+output: html_document
+date: "2024-07-10"
+---
+
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+
+library(tidyverse)
+library(knitr)
+library(readr)
+library(lubridate)
+library(dplyr)
+library(writexl)
+library(readxl)
+library(digest)
+
+```
+
+# Import list of monitoring df
+
+```{r}
+
+# create a list of df
+
+file_names <- list.files(path = "/Users/micahclarkmoody/Desktop/1 - Original Data/Extra Col")
+
+path_names <- paste("/Users/micahclarkmoody/Desktop/1 - Original Data/Extra Col/", file_names, sep = "")
+
+# import df in a list
+
+list_data <- lapply(path_names, function(x) read_excel(paste0(path = x)))
+
+# MISSING STEP a column to index each df in the list
+
+# combine into a single df
+
+data <- list_data %>%
+  bind_rows()
+
+# TEMPORARY single df
+
+temporary_df <- read_excel(path = "/Users/micahclarkmoody/Desktop/1 - Original Data/Extra Col/2023-10-12 (sent 10-13) (new format).xlsx")
+
+```
+
+# Hashing identifiable variables
+
+```{r}
+
+anon_temporary_df <- temporary_df %>%
+  unite(id, c("LAST NAME", "FIRST NAME", "MIDDLE")) %>%
+  rowwise() %>%
+  mutate(id_hash = digest(id)) %>%
+  ungroup()
+
+anon_temporary_df <- anon_temporary_df %>%
+  rowwise() %>%
+  mutate(booking_hash = digest("BOOKING NO.")) %>%
+  ungroup()
+
+```
+
+```{r}
+
+write.csv(anon_temporary_df, file = "/Users/micahclarkmoody/Desktop/anon_data.csv")
+
+```
+
+
+
+
+
+
+
