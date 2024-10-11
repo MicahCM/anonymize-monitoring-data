@@ -1,35 +1,11 @@
----
-title: "anonymize-data"
-output: html_document
-date: "2024-07-10"
----
-
-```{r setup}
 
 library(tidyverse)
 library(readxl)
 library(janitor)
-library(digest)
-
-```
-
-# import data
-
-cleaner.R from Chris
-
-tests
-
-- For data imported 
-  - error in bind_rows
-  - only getting 3,592 observations in f
-- For data_subsets 2024-01-01 to 2024-01-14 imported 10,090 observations to final. Error message for ~15 date_of_birth mutate() but otherwise good
-  - Rough estimate based on 10,090 observations for 14 reports is 245,763 observations for the 341 total reports
-
-````{r}
 
 # create a list of df
 # change based on local environment
-local_path <- "/Users/micahclarkmoody/Desktop/monitoring_data/data/"
+local_path <- "/Users/micahclarkmoody/Desktop/1 - Original Data/All Data/"
 file_names <- list.files(path = local_path)
 path_names <- paste(local_path, file_names, sep = "")
 
@@ -136,44 +112,3 @@ for (i in 1:length(list_data)) {
   }
   
 }
-
-```
-
-# Create hashed variables and delete identifiable variables
-
-FLAG: This version of the code creates `id` based on FIRST NAME, LAST NAME, DATE OF BIRTH but not MIDDLE. This is because MIDDLE is missing for most observations. If, at any point, on wants to look at re-arrests including MIDDLE in the has would mess up that comparison because people with the same FIRST, LAST, DOB who were arrested once with MIDDLE recorded and once with MIDDLE=NA would appear as different people. To change this decision, add MIDDLE to line 110.
-
-```{r}
-
-anon_final <- final %>%
-  
-  # create hash for name
-  # flag, omitting MIDDLE
-  unite(id, c("last_name", "first_name")) %>%
-  rowwise() %>%
-  mutate(id_hash = digest(id)) %>%
-  ungroup() %>%
-  
-  # create hash for booking number
-  rowwise() %>%
-  mutate(booking_hash = digest(booking)) %>%
-  ungroup() %>%
-  
-  # delete identifiable columns
-  select(-c("booking", "id", "middle", "date_of_birth"))
-
-```
-
-# Export data as a csv then email to Vera! 
-
-```{r}
-
-write.csv(anon_final, "/Users/micahclarkmoody/Desktop/anonymized_final.csv")
-
-```
-
-
-
-
-
-
