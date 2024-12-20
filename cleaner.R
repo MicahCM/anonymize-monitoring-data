@@ -5,7 +5,7 @@ library(janitor)
 
 # create a list of df
 # change based on local environment
-local_path <- "/Users/micahclarkmoody/Desktop/1 - Original Data/All Data/"
+local_path <- "/Users/micahclarkmoody/Desktop/monitoring_data/subset_98/"
 file_names <- list.files(path = local_path)
 path_names <- paste(local_path, file_names, sep = "")
 
